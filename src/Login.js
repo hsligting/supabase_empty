@@ -1,12 +1,23 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ErrorMessage from "./ErrorMessage";
+import { supabase } from "./supabase";
 
 export const Login = () => {
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null)
+
+    const login = async () => {
+        const response = await supabase.auth.signInWithPassword({email, password})
+        if(response.error){
+            setError(response.error.message)
+            return
+        }
+
+        navigate("/posts")
+    }
 
     return (
         <>
@@ -15,8 +26,7 @@ export const Login = () => {
                     <img
                         className="mx-auto h-10 w-auto"
                         src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
-                        alt="Your Company"
-                    />
+                        alt="Your Company"/>
                     <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
                         Sign in to your account
                     </h2>
@@ -72,7 +82,7 @@ export const Login = () => {
                             <button
                                 type="button"
                                 className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                                onClick={() => {}}
+                                onClick={login}
                             >
                                 Sign in
                             </button>
