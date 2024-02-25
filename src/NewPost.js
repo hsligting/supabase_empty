@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import ErrorMessage from "./ErrorMessage";
 import { useCheckAuth } from "./useCheckAuth";
+import { supabase } from "./supabase";
 
 export function NewPost() {
     useCheckAuth()
@@ -10,6 +11,27 @@ export function NewPost() {
     const [content, setContent] = useState("");
     const [file, setFile] = useState(null);
     const [error, setError] = useState(null);
+
+
+    const addPost = async () => {
+        const user = await supabase.auth.getUser()
+        if (user.error) {
+            setError(user.error.message)
+            return
+        }
+
+        const insertReseult = await supabase.from("posts").insert({
+            content,
+            user_id: user.data.user.id
+        })
+
+        if (insertReseult.error) {
+            setError(insertReseult.error.message)
+            return
+        }
+
+        navigate("/posts")
+    }
 
     return (
         <div>
@@ -61,7 +83,7 @@ export function NewPost() {
                                 />
                                 <div className="flex-shrink-0">
                                     <button
-                                        onClick={() => {}}
+                                        onClick={addPost}
                                         type="button"
                                         className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                                     >

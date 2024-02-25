@@ -18,6 +18,16 @@ export const Signup = () => {
             return
         }
 
+        const userDataResponse = await supabase.from("user_data").insert({
+            email: response.data.user.email,
+            user_id: response.data.user.id
+        })
+
+        if (userDataResponse.error) {
+            setError(userDataResponse.error.message)
+            return
+        }
+
         navigate("/posts")
     }
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ErrorMessage from "./ErrorMessage";
 import { supabase } from "./supabase";
@@ -19,6 +19,23 @@ export const Posts = () => {
         }
         navigate("/login")
     }
+
+    const getPosts = async () => {
+        const response = await supabase.from("posts").select("*, user_data(email)").order("created_at", {ascending: false})
+
+        if (response.error) {
+            setError(response.error.message)
+            return
+        }
+
+        setPosts(response.data)
+    }
+
+    useEffect(() => {
+        getPosts()
+    }, [])
+
+    supabase.channel("posts").on("postgres_changes", {event: "*", schema: "public", table: "posts"}, getPosts).subscribe()
 
     return (
         <div>
